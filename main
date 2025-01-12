@@ -1,0 +1,75 @@
+# setting ui
+from tkinter import *
+import pandas
+import random
+window=Tk()
+window.minsize(600,600)
+window.title("FLASH CARD")
+window.config(padx=50,pady=50)
+canfor=Canvas(height=526,width=800,bg="black",highlightthickness=0)
+cardf=PhotoImage(file="images/card_front.png")
+cardb=PhotoImage(file="images/card_back.png")
+cardimage=canfor.create_image(400,263,image=cardf)
+word=canfor.create_text(400,263,text="word",font=("arial",30,"bold"))
+tittle=canfor.create_text(400,200,text="Title",font=("arial",20,"normal"))
+canfor.grid(row=0,column=0,columnspan=200)
+imager=PhotoImage(file="images/right.png")
+imagew=PhotoImage(file="images/wrong.png")
+# function for generating cards
+def changer():
+    global i
+
+    window.after(1000, flip)
+def know():
+    try:
+        global i
+        le.remove(le[i])
+        lf.remove(lf[i])
+        i = random.randint(0, len(le)-1)
+        canfor.itemconfig(cardimage, image=cardf)
+        canfor.itemconfig(tittle, text="French")
+        canfor.itemconfig(word, text=lf[i])
+        dfp=pandas.DataFrame()
+        dfp["French"]=lf
+        dfp["english"]=le
+
+        dfp.to_csv("tolearn.csv")
+
+    except IndexError:
+        canfor.itemconfig(tittle,text="congratulations🎉")
+        canfor.itemconfig(word,text="you have learned")
+# function for showing equivalent english word
+def flip():
+
+    global i
+    canfor.itemconfig(cardimage,image=cardb)
+    canfor.itemconfig(tittle,text="English")
+    canfor.itemconfig(word,text=le[i])
+
+right=Button(image=imager,highlightthickness=0,bg="white",command=know )
+wrong=Button(image=imagew,highlightthickness=0,bg="white",command=changer)
+right.grid(row=1,column=199)
+wrong.grid(row=1,column=0)
+window.config(bg="black")
+# reading csv file
+try:
+    dfo = pandas.read_csv("tolearn.csv")
+    lf = [x for x in dfo["French"]]
+    le = [x for x in dfo["English"]]
+    dc = {lf[i]: le[i] for i in range(0, len(lf))}
+    # main area starting
+    i = random.randint(0, len(le))
+    canfor.itemconfig(cardimage, image=cardf)
+    canfor.itemconfig(tittle, text="French")
+    canfor.itemconfig(word, text=lf[i])
+except:
+    dfo = pandas.read_csv("images/data/french_words.csv")
+    lf = [x for x in dfo["French"]]
+    le = [x for x in dfo["English"]]
+    dc = {lf[i]: le[i] for i in range(0, len(lf))}
+    # main area starting
+    i = random.randint(0, len(le))
+    canfor.itemconfig(cardimage, image=cardf)
+    canfor.itemconfig(tittle, text="French")
+    canfor.itemconfig(word, text=lf[i])
+window.mainloop()
